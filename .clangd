@@ -1,0 +1,32 @@
+CompileFlags:
+  CompilationDatabase: build/gcc
+  Add: [-Wall, -Wextra, -I src]
+  Remove: [-mthreads, -municode, '-Wa,*']
+---
+If:
+  PathMatch: .*\.c$
+CompileFlags:
+  Add: [-std=c11]
+---
+If:
+  PathMatch: .*\.(cpp|cc|cxx|hpp)$
+CompileFlags:
+  Add: [-std=c++23]
+
+Diagnostics:
+  UnusedIncludes: Strict
+  MissingIncludes: Strict
+
+Hover:
+  ShowAKA: Yes
+
+Completion:
+  HeaderInsertion: Never
+InlayHints:
+  Enabled: false
+
+Style:
+  FallbackStyle: none
+
+Index:
+  Background: Build
