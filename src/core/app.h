@@ -7,22 +7,11 @@ namespace shooter
 class App
 {
 public:
-    static App &instance()
-    {
-        static App app;
-        return app;
-    }
-
-    static int run(int argc, char **argv)
-    {
-        return instance().run_impl(argc, argv);
-    }
-private:
     App() = default;
     ~App() = default;
-
-    int run_impl(int argc, char **argv);
-
+    
+    int run(int argc, char **argv);
+private:
     bool init();
     void quit();
 

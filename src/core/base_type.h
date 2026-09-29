@@ -7,11 +7,11 @@
 namespace shooter
 {
 
-typedef uint8_t  Uint8;
-typedef uint16_t Uint16;
-typedef uint32_t Uint32;
-typedef uint64_t Uint64;
+using Uint8  = uint8_t;
+using Uint16 = uint16_t;
+using Uint32 = uint32_t;
+using Uint64 = uint64_t;
 
-}    
+}
 
 #endif

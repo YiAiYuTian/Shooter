@@ -14,16 +14,25 @@ find_package(SDL3 REQUIRED CONFIG)
 find_package(SDL3_ttf REQUIRED CONFIG)
 find_package(SDL3_image REQUIRED CONFIG)
 find_package(spdlog REQUIRED CONFIG)
+find_package(glm REQUIRED CONFIG)
 
 add_executable(${PROJECT_NAME} WIN32 main.cpp)
 
 target_sources(${PROJECT_NAME} PRIVATE 
   src/core/app.cpp
   src/core/logger.cpp
+  src/core/resource_manager.cpp
   src/event/event_manager.cpp
   src/event/input_manager.cpp
+  src/render/render_manager.cpp
 )
 
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/utf-8>)
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3 SDL3_ttf::SDL3_ttf spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE 
+  SDL3::SDL3 
+  SDL3_image::SDL3_image 
+  SDL3_ttf::SDL3_ttf 
+  spdlog::spdlog 
+  glm::glm
+)

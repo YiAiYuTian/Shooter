@@ -4,5 +4,6 @@
 
 int main(int argc, char **argv)
 {
-    return shooter::App::run(argc, argv);
+    shooter::App app;
+    return app.run(argc, argv);
 }
