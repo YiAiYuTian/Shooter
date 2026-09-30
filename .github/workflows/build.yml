@@ -1,22 +1,44 @@
-name: build
+name: CMake on multiple platforms
 
 on:
   push:
+    branches: ["master"]
     tags: ["v*"]
   workflow_dispatch:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            triplet: x64-linux
-          - os: windows-latest
-            triplet: x64-windows
-          - os: macos-latest
-            triplet: arm64-osx
     runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        build_type: [Release]
+        c_compiler: [gcc, clang, cl]
+        include:
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+            triplet: x64-windows
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+            triplet: x64-linux
+          - os: ubuntu-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+            triplet: x64-linux
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+            triplet: arm64-osx
+        exclude:
+          - os: windows-latest
+            c_compiler: gcc
+          - os: windows-latest
+            c_compiler: clang
+          - os: ubuntu-latest
+            c_compiler: cl
     permissions:
       contents: write
 
@@ -27,22 +49,47 @@ jobs:
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev
 
-      - name: Setup vcpkg
-        uses: microsoft/setup-vcpkg@v2
+      - name: Checkout vcpkg
+        uses: actions/checkout@v5
+        with:
+          repository: microsoft/vcpkg
+          path: vcpkg
 
-      - name: Configure
+      - name: Bootstrap vcpkg
         shell: bash
-        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+        working-directory: vcpkg
+        run: |
+          if [ "$RUNNER_OS" = "Windows" ]; then
+            cmd //c bootstrap-vcpkg.bat
+          else
+            ./bootstrap-vcpkg.sh
+          fi
+
+      - name: Set reusable strings
+        id: strings
+        shell: bash
+        run: |
+          echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      - name: Configure CMake
+        shell: bash
+        run: >
+          cmake -B ${{ steps.strings.outputs.build-output-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+          -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
+          -S ${{ github.workspace }}
 
       - name: Build
-        shell: bash
-        run: cmake --build build --config Release -j
+        run: cmake --build ${{ steps.strings.outputs.build-output-dir }} --config ${{ matrix.build_type }} -j
 
       - name: Package
         shell: bash
         run: |
           mkdir -p dist
-          if [ "${{ runner.os }}" = "Windows" ]; then
+          if [ "$RUNNER_OS" = "Windows" ]; then
             cp build/Release/shooter.exe dist/
           else
             cp build/shooter dist/ || cp build/Release/shooter dist/
@@ -52,7 +99,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: shooter-${{ matrix.os }}
+          name: shooter-${{ matrix.os }}-${{ matrix.c_compiler }}
           path: dist/
 
       - name: Release
