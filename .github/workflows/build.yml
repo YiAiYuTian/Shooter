@@ -2,7 +2,6 @@ name: CMake on multiple platforms
 
 on:
   push:
-    branches: ["master"]
     tags: ["v*"]
   workflow_dispatch:
 
@@ -96,6 +95,7 @@ jobs:
           mkdir -p dist
           if [ "$RUNNER_OS" = "Windows" ]; then
             cp build/Release/shooter.exe dist/
+            cp build/Release/*.dll dist/
           else
             cp build/shooter dist/ || cp build/Release/shooter dist/
           fi
