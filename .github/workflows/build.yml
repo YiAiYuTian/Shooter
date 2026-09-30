@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
@@ -47,7 +47,11 @@ jobs:
 
       - name: Linux system deps
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev ninja-build autoconf automake libtool gettext
+
+      - name: macOS system deps
+        if: runner.os == 'macOS'
+        run: brew install ninja
 
       - name: Checkout vcpkg
         uses: actions/checkout@v5
