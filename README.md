@@ -19,3 +19,4 @@ cmake --build --preset gcc
 - [glm](https://github.com/g-truc/glm)
 - [spdlog](https://github.com/gabime/spdlog)
 - [fmt](https://github.com/fmtlib/fmt)
+- [Box2D](https://github.com/erincatto/box2d)

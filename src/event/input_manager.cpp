@@ -35,6 +35,8 @@ void InputManager::on_sdl_mouse_motion_event_impl(SDL_MouseMotionEvent *e)
     event.y = e->y;
     event.xrel = e->xrel;
     event.yrel = e->yrel;
+
+    m_mouse_pos = { e->x, e->y };
     EventManager::enqueue(event);
 }
 

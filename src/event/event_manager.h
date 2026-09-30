@@ -46,7 +46,7 @@ public:
     }
 
     template <typename T, typename Fn>
-    requires std::is_base_of_v<IEvent, T>    
+    requires std::is_base_of_v<IEvent, T>
     static EventHandle subscribe(Fn &&func)
     {
         EventCallback cb =

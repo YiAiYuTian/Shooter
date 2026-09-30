@@ -65,6 +65,11 @@ public:
         instance().draw_text_impl(text, font, pos, size, color);
     }
 
+    static void draw_text_gradient(const char *text, TTF_Font *font, glm::ivec2 pos, float size, glm::vec4 top_color, glm::vec4 bottom_color)
+    {
+        instance().draw_text_gradient_impl(text, font, pos, size, top_color, bottom_color);
+    }
+
 private:
     RenderManager() = default;
     ~RenderManager() = default;
@@ -80,6 +85,7 @@ private:
     void draw_rect_fill_impl(glm::vec4 rect, glm::vec4 color);
     void draw_texture_impl(SDL_Texture *texture, glm::vec4 *src_rect, glm::vec4 dst_rect);
     void draw_text_impl(const char *text, TTF_Font *font, glm::ivec2 pos, float size, glm::vec4 color);
+    void draw_text_gradient_impl(const char *text, TTF_Font *font, glm::ivec2 pos, float size, glm::vec4 top_color, glm::vec4 bottom_color);
 private:
     struct Impl;
     Impl *m_impl = nullptr;

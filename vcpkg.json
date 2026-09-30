@@ -1,0 +1,12 @@
+{
+  "name": "shooter",
+  "version-string": "0.1.1",
+  "dependencies": [
+    "sdl3",
+    "sdl3-image",
+    "sdl3-ttf",
+    "spdlog",
+    "glm",
+    "box2d"
+  ]
+}

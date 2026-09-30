@@ -3,6 +3,8 @@
 
 #include "event_manager.h"
 
+#include <glm/glm.hpp>
+
 namespace shooter
 {
 
@@ -33,7 +35,7 @@ public:
     static void on_sdl_mouse_motion_event(SDL_MouseMotionEvent *e)
     {
         instance().on_sdl_mouse_motion_event_impl(e);
-    }        
+    }
 
     static void on_sdl_mouse_wheel_event(SDL_MouseWheelEvent *e)
     {
@@ -44,6 +46,11 @@ public:
     {
         instance().on_sdl_key_event_impl(e);
     }
+
+    static glm::vec2 get_mouse_pos()
+    {
+        return instance().get_mouse_pos_impl();
+    }
 private:
     bool is_key_held_impl(SDL_Scancode k);
     bool is_mouse_held_impl(SDL_MouseButtonFlags m);
@@ -52,6 +59,10 @@ private:
     void on_sdl_mouse_motion_event_impl(SDL_MouseMotionEvent *e);
     void on_sdl_mouse_wheel_event_impl(SDL_MouseWheelEvent *e);
     void on_sdl_key_event_impl(SDL_KeyboardEvent *e);
+
+    inline glm::vec2 get_mouse_pos_impl() { return m_mouse_pos; }
+private:
+    glm::vec2 m_mouse_pos;
 };
 
 }    

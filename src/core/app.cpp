@@ -6,9 +6,59 @@
 #include "../render/render_manager.h"
 
 #include <SDL3/SDL.h>
+#include <chrono>
+#include <thread>
 
 namespace shooter
 {
+
+class Time
+{
+    using Clock = std::chrono::high_resolution_clock;
+public:
+    Time() { m_last = Clock::now(); }
+
+    void set_target_fps(int fps)
+    {
+        if (fps <= 0)
+        {
+            m_target_frame = std::chrono::duration<double>(0.0);
+            return;
+        }
+        m_target_frame = std::chrono::duration<double>(1.0 / static_cast<double>(fps));
+    }
+
+    void end_frame()
+    {
+        auto now = Clock::now();
+        auto elapsed = now - m_last;
+
+        m_delta_time = std::chrono::duration<double>(elapsed).count();
+
+        if (m_target_frame.count() > 0.0 && elapsed < m_target_frame)
+        {
+            auto sleep_time = m_target_frame - elapsed;
+            std::this_thread::sleep_for(sleep_time);
+        }
+
+        m_last = now;
+    }
+
+    [[nodiscard]] float get_delta() const
+    {
+        return static_cast<float>(m_delta_time);
+    }
+
+    void disable_limit()
+    {
+        m_target_frame = std::chrono::duration<double>(0.0);
+    }
+
+private:
+    Clock::time_point m_last;
+    std::chrono::duration<double> m_target_frame{0.0};
+    double m_delta_time{1.0 / 60.0};
+};
 
 struct App::Impl
 {
@@ -26,15 +76,25 @@ int App::run(int argc, char **argv)
 
     if (!init()) return -1;
 
+    Time time;
+    time.set_target_fps(60);
     while (m_impl->is_running)
     {
+        float dt = time.get_delta();
         on_event();
-        on_update();
+        on_update(dt);
         on_render();
+
+        time.end_frame();
     }
 
     quit();
     return 0;
+}
+
+void App::quit_game()
+{
+    m_impl->is_running = false;
 }
 
 void App::on_event()
@@ -75,17 +135,18 @@ void App::on_event()
     }
 }
 
-void App::on_update()
+void App::on_update(float dt)
 {
     EventManager::update();
 
-    
+    m_game.on_update(dt);
 }
 
 void App::on_render()
 {
     RenderManager::begin_frame();
     // render
+    m_game.on_render();
 
     RenderManager::end_frame();
 }
@@ -120,13 +181,8 @@ bool App::init()
         }
     );
 
-    EventManager::subscribe<KeyEvent>(
-        [&](const KeyEvent &e)
-        {
-            if (e.key == SDLK_ESCAPE)
-                m_impl->is_running = false;
-        }
-    );
+    // game load
+    if (!m_game.init(this)) return false;
 
     m_impl->is_running = true;
     return true;
@@ -134,6 +190,8 @@ bool App::init()
 
 void App::quit()
 {
+    m_game.quit();
+
     RenderManager::quit();
     SDL_DestroyWindow(m_impl->window);
     ResourceManager::quit();
