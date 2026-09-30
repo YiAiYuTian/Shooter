@@ -48,7 +48,7 @@ jobs:
 
       - name: Linux system deps
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev ninja-build autoconf autoconf-archive automake libtool gettext
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev ninja-build autoconf autoconf-archive automake libtool libltdl-dev gettext
 
       - name: macOS system deps
         if: runner.os == 'macOS'
@@ -59,6 +59,13 @@ jobs:
         with:
           repository: microsoft/vcpkg
           path: vcpkg
+          fetch-depth: 1
+
+      - name: Cache vcpkg
+        uses: actions/cache@v4
+        with:
+          path: vcpkg
+          key: vcpkg-${{ runner.os }}-${{ hashFiles('vcpkg.json') }}
 
       - name: Bootstrap vcpkg
         shell: bash

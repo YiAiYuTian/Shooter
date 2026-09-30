@@ -8,5 +8,11 @@
     "spdlog",
     "glm",
     "box2d"
+  ],
+  "overrides": [
+    {
+      "name": "box2d",
+      "version": "2.4.1"
+    }
   ]
 }
