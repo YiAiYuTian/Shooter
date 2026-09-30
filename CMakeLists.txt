@@ -21,7 +21,10 @@ if(NOT box2d_FOUND)
   FetchContent_Declare(box2d
     URL https://github.com/erincatto/Box2D/archive/refs/tags/v2.4.1.tar.gz
     DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+  set(BOX2D_BUILD_TESTBED OFF CACHE BOOL "" FORCE)
+  set(BOX2D_BUILD_UNIT_TESTS OFF CACHE BOOL "" FORCE)
   FetchContent_MakeAvailable(box2d)
+  add_library(box2d::box2d ALIAS box2d)
 endif()
 
 add_executable(${PROJECT_NAME} WIN32 main.cpp)

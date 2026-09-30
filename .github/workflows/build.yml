@@ -85,7 +85,6 @@ jobs:
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
           -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake
-          -DCMAKE_MAKE_PROGRAM=${{ matrix.os == 'macos-latest' && '/usr/bin/make' || 'make' }}
           -S ${{ github.workspace }}
 
       - name: Build
