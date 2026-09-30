@@ -32,6 +32,7 @@ jobs:
             c_compiler: clang
             cpp_compiler: clang++
             triplet: arm64-osx
+            build_type: Release
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -47,7 +48,7 @@ jobs:
 
       - name: Linux system deps
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev ninja-build autoconf automake libtool gettext
+        run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev ninja-build autoconf autoconf-archive automake libtool gettext
 
       - name: macOS system deps
         if: runner.os == 'macOS'
@@ -76,7 +77,6 @@ jobs:
           echo "build-output-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
       - name: Configure CMake
-        shell: bash
         run: >
           cmake -B ${{ steps.strings.outputs.build-output-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
