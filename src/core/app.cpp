@@ -7,6 +7,7 @@
 
 #include <SDL3/SDL.h>
 #include <chrono>
+#include <string>
 #include <thread>
 
 namespace shooter
@@ -171,7 +172,10 @@ bool App::init()
 
     // load resource
     ResourceManager::set_renderer(RenderManager::renderer());
-    if (!ResourceManager::load_resource("./assets.pak")) return false;
+        const char *base = SDL_GetBasePath();
+    std::string pak_path = std::string(base) + "assets.pak";
+    SDL_free(const_cast<char *>(base));
+    if (!ResourceManager::load_resource(pak_path)) return false;
 
     // Quit App Event
     EventManager::subscribe<QuitEvent>(
