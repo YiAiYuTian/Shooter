@@ -21,21 +21,21 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Linux system deps
         if: runner.os == 'Linux'
         run: sudo apt-get update && sudo apt-get install -y libx11-dev libxext-dev libxrandr-dev libxi-dev libxkbcommon-dev libwayland-dev libdbus-1-dev libpulse-dev libasound2-dev libdecor-0-dev
 
       - name: Setup vcpkg
-        uses: lukka/run-vcpkg@v11
-        with:
-          vcpkgJsonGlob: 'vcpkg.json'
+        uses: microsoft/setup-vcpkg@v2
 
       - name: Configure
-        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE='${{ runner.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake' -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
+        shell: bash
+        run: cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE="$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" -DCMAKE_BUILD_TYPE=Release -DVCPKG_TARGET_TRIPLET=${{ matrix.triplet }}
 
       - name: Build
+        shell: bash
         run: cmake --build build --config Release -j
 
       - name: Package
