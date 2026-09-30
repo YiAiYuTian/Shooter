@@ -101,7 +101,7 @@ jobs:
           fi
           cp assets.pak dist/
           if [ "$RUNNER_OS" = "Windows" ]; then
-            tar -a -cf shooter-${{ matrix.os }}-${{ matrix.c_compiler }}.zip -C dist .
+            powershell -Command "Compress-Archive -Path 'dist/*' -DestinationPath 'shooter-${{ matrix.os }}-${{ matrix.c_compiler }}.zip' -Force"
           else
             tar -czf shooter-${{ matrix.os }}-${{ matrix.c_compiler }}.tar.gz -C dist .
           fi
