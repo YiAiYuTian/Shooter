@@ -15,7 +15,14 @@ find_package(SDL3_ttf REQUIRED CONFIG)
 find_package(SDL3_image REQUIRED CONFIG)
 find_package(spdlog REQUIRED CONFIG)
 find_package(glm REQUIRED CONFIG)
-find_package(box2d REQUIRED CONFIG)
+find_package(box2d CONFIG QUIET)
+if(NOT box2d_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(box2d
+    URL https://github.com/erincatto/Box2D/archive/refs/tags/v2.4.1.tar.gz
+    DOWNLOAD_EXTRACT_TIMESTAMP TRUE)
+  FetchContent_MakeAvailable(box2d)
+endif()
 
 add_executable(${PROJECT_NAME} WIN32 main.cpp)
 

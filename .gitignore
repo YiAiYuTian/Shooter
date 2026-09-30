@@ -1,4 +1,3 @@
 build/
-*.pak
 *:Zone.Identifier
 imgui.ini
