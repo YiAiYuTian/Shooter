@@ -8,10 +8,47 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
+#include <vector>
+
 
 namespace shooter
 {
 
+AIPlayer::AIPlayer()
+{
+    m_anim_idle_l = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_idle_left_0.png",
+        "res/img/warrior_idle_left_1.png",
+        "res/img/warrior_idle_left_2.png",
+        "res/img/warrior_idle_left_3.png" }));
+    m_anim_idle_r = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_idle_right_0.png",
+        "res/img/warrior_idle_right_1.png",
+        "res/img/warrior_idle_right_2.png",
+        "res/img/warrior_idle_right_3.png" }));
+    m_anim_walk_l = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_walk_left_0.png",
+        "res/img/warrior_walk_left_1.png",
+        "res/img/warrior_walk_left_2.png",
+        "res/img/warrior_walk_left_3.png",
+        "res/img/warrior_walk_left_4.png",
+        "res/img/warrior_walk_left_5.png",
+        "res/img/warrior_walk_left_6.png",
+        "res/img/warrior_walk_left_7.png" }));
+    m_anim_walk_r = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_walk_right_0.png",
+        "res/img/warrior_walk_right_1.png",
+        "res/img/warrior_walk_right_2.png",
+        "res/img/warrior_walk_right_3.png",
+        "res/img/warrior_walk_right_4.png",
+        "res/img/warrior_walk_right_5.png",
+        "res/img/warrior_walk_right_6.png",
+        "res/img/warrior_walk_right_7.png" }));
+    for (auto *a : { m_anim_idle_l.get(), m_anim_idle_r.get(), m_anim_walk_l.get(), m_anim_walk_r.get() })
+        if (a) a->set_interval(0.1f);
+    m_anim = m_anim_idle_r.get();
+}
 void AIPlayer::init(const char *name_, glm::vec2 sp, glm::vec4 col, float diff_)
 {
     m_name = name_;
@@ -84,18 +121,17 @@ void AIPlayer::update(float dt, const Player (&players)[2], std::vector<Bullet> 
             }
         }
     }
-    tick_anim(dt, 8);
+    Animation *a = m_body.on_ground
+        ? (m_facing > 0 ? m_anim_idle_r.get() : m_anim_idle_l.get())
+        : (m_facing > 0 ? m_anim_walk_r.get() : m_anim_walk_l.get());
+    if (a != m_anim) m_anim = a;
+    if (m_anim) m_anim->on_update(dt);
 }
 
 void AIPlayer::draw(TTF_Font *font) const
 {
     if (!is_alive()) return;
-    char tex_name[128];
-    if (!m_body.on_ground)
-        std::snprintf(tex_name, sizeof(tex_name), "res/img/warrior_walk_%s_%d.png", m_facing > 0 ? "right" : "left", frame(8));
-    else
-        std::snprintf(tex_name, sizeof(tex_name), "res/img/warrior_idle_%s_%d.png", m_facing > 0 ? "right" : "left", frame(4));
-    draw_actor(get_pos().x, get_pos().y, get_w(), get_h(), 64.0f, 72.0f, ResourceManager::get_texture(tex_name));
+    draw_actor(get_pos().x, get_pos().y, get_w(), get_h(), 64.0f, 72.0f, m_anim ? m_anim->current() : nullptr);
     draw_gun(get_pos().x, get_pos().y + 16.0f, m_facing, WEAPONS[m_weapon].color());
     draw_hp(get_pos().x - 2.0f, get_pos().y - 22.0f, 34.0f, (float)m_hp, 5.0f);
     RenderManager::draw_text(m_name, font, { (int)get_pos().x - 4, (int)get_pos().y - 34 }, 16, m_color);

@@ -8,10 +8,47 @@
 #include <SDL3/SDL.h>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
+
 
 namespace shooter
 {
 
+Player::Player()
+{
+    m_anim_idle_l = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_idle_left_0.png",
+        "res/img/warrior_idle_left_1.png",
+        "res/img/warrior_idle_left_2.png",
+        "res/img/warrior_idle_left_3.png" }));
+    m_anim_idle_r = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_idle_right_0.png",
+        "res/img/warrior_idle_right_1.png",
+        "res/img/warrior_idle_right_2.png",
+        "res/img/warrior_idle_right_3.png" }));
+    m_anim_walk_l = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_walk_left_0.png",
+        "res/img/warrior_walk_left_1.png",
+        "res/img/warrior_walk_left_2.png",
+        "res/img/warrior_walk_left_3.png",
+        "res/img/warrior_walk_left_4.png",
+        "res/img/warrior_walk_left_5.png",
+        "res/img/warrior_walk_left_6.png",
+        "res/img/warrior_walk_left_7.png" }));
+    m_anim_walk_r = std::make_unique<Animation>(Atlas({
+        "res/img/warrior_walk_right_0.png",
+        "res/img/warrior_walk_right_1.png",
+        "res/img/warrior_walk_right_2.png",
+        "res/img/warrior_walk_right_3.png",
+        "res/img/warrior_walk_right_4.png",
+        "res/img/warrior_walk_right_5.png",
+        "res/img/warrior_walk_right_6.png",
+        "res/img/warrior_walk_right_7.png" }));
+    for (auto *a : { m_anim_idle_l.get(), m_anim_idle_r.get(), m_anim_walk_l.get(), m_anim_walk_r.get() })
+        if (a) a->set_interval(0.1f);
+    m_anim = m_anim_idle_r.get();
+}
 void Player::reset()
 {
     m_body.dynamic = true;
@@ -57,7 +94,11 @@ void Player::update(float dt, std::vector<Bullet> &bullets)
     if (m_hurt_timer > 0.0f) m_state = State::Hurt;
 
     shoot(dt, bullets);
-    tick_anim(dt, (m_state == State::Run || m_state == State::Air) ? 8 : 4);
+    Animation *a = (m_state == State::Run || m_state == State::Air)
+        ? (m_facing > 0 ? m_anim_walk_r.get() : m_anim_walk_l.get())
+        : (m_facing > 0 ? m_anim_idle_r.get() : m_anim_idle_l.get());
+    if (a != m_anim) m_anim = a;
+    if (m_anim) m_anim->on_update(dt);
 }
 
 void Player::shoot(float dt, std::vector<Bullet> &bullets)
@@ -100,20 +141,7 @@ void Player::draw(TTF_Font *font) const
         }
         return;
     }
-    char tex_name[128];
-    const char *dir = m_facing > 0 ? "right" : "left";
-    if (std::strcmp(m_prefix, "warrior") == 0)
-    {
-        if (m_state == State::Run || m_state == State::Air)
-            std::snprintf(tex_name, sizeof(tex_name), "res/img/warrior_walk_%s_%d.png", dir, frame(8));
-        else
-            std::snprintf(tex_name, sizeof(tex_name), "res/img/warrior_idle_%s_%d.png", dir, frame(4));
-    }
-    else
-    {
-        std::snprintf(tex_name, sizeof(tex_name), "res/img/%s_%s_%d.png", m_prefix, dir, frame(6));
-    }
-    draw_actor(get_pos().x, get_pos().y, get_w(), get_h(), 64.0f, 72.0f, ResourceManager::get_texture(tex_name));
+    draw_actor(get_pos().x, get_pos().y, get_w(), get_h(), 64.0f, 72.0f, m_anim ? m_anim->current() : nullptr);
     draw_gun(get_pos().x, get_pos().y + 16.0f, m_facing, WEAPONS[m_weapon].color());
     if (m_attack_timer > 0.0f)
     {

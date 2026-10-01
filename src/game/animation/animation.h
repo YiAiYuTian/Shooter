@@ -3,8 +3,11 @@
 
 #include <glm/glm.hpp>
 #include <initializer_list>
+#include <string>
 #include <string_view>
 #include <vector>
+#include <memory>
+
 
 struct SDL_Texture;
 
@@ -15,6 +18,7 @@ class Atlas
 {
 public:
     Atlas(std::initializer_list<std::string_view> list);
+    Atlas(const std::vector<std::string> &names);
     Atlas(Atlas &&atlas) noexcept;
     ~Atlas() = default;
 
@@ -32,6 +36,8 @@ public:
 
     void on_update(float dt);
     void on_render();
+
+    SDL_Texture *current() const { return m_current; }
 
     void set_interval(float time);
     void set_pos(glm::vec2 pos);

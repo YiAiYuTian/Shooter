@@ -7,6 +7,9 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <string>
+#include <vector>
+
 
 namespace shooter
 {
@@ -21,6 +24,17 @@ void Zombie::init(const char *prefix_, glm::vec2 p, float speed_, float hp_)
     m_frame_count = 8;
     if (std::strcmp(prefix_, "bee") == 0) m_frame_count = 4;
     else if (std::strcmp(prefix_, "boar") == 0) m_frame_count = 6;
+    std::vector<std::string> nl, nr;
+    for (int i = 0; i < m_frame_count; ++i)
+    {
+        nl.push_back(std::string("res/img/") + prefix_ + "_left_" + std::to_string(i) + ".png");
+        nr.push_back(std::string("res/img/") + prefix_ + "_right_" + std::to_string(i) + ".png");
+    }
+    m_anim_walk_l = std::make_unique<Animation>(Atlas(nl));
+    m_anim_walk_r = std::make_unique<Animation>(Atlas(nr));
+    if (m_anim_walk_l) m_anim_walk_l->set_interval(0.1f);
+    if (m_anim_walk_r) m_anim_walk_r->set_interval(0.1f);
+    m_anim = m_anim_walk_r.get();
     m_body.dynamic = true;
     m_body.gravity = true;
     m_body.collide = true;
@@ -63,15 +77,15 @@ void Zombie::update(float dt, const Player (&players)[2])
             m_body.on_ground = false;
         }
     }
-    tick_anim(dt, m_frame_count);
+    Animation *a = m_facing > 0 ? m_anim_walk_r.get() : m_anim_walk_l.get();
+    if (a != m_anim) m_anim = a;
+    if (m_anim) m_anim->on_update(dt);
 }
 
 void Zombie::draw() const
 {
     if (!is_alive()) return;
-    char tex_name[128];
-    std::snprintf(tex_name, sizeof(tex_name), "res/img/%s_%s_%d.png", m_prefix, m_facing > 0 ? "right" : "left", frame(m_frame_count));
-    draw_actor(get_pos().x, get_pos().y, get_w(), get_h(), 52.0f, 60.0f, ResourceManager::get_texture(tex_name));
+    draw_actor(get_pos().x, get_pos().y, get_w(), get_h(), 52.0f, 60.0f, m_anim ? m_anim->current() : nullptr);
     if (m_hp < m_max_hp)
     {
         RenderManager::draw_fill_rect({ get_pos().x, get_pos().y - 10.0f, 24.0f, 4.0f }, RED);

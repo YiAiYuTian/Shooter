@@ -12,6 +12,7 @@ namespace shooter
 class Player : public Character
 {
 public:
+    Player();
     void reset();
     void update(float dt, std::vector<Bullet> &bullets);
     void draw(TTF_Font *font) const;

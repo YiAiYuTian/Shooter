@@ -3,6 +3,9 @@
 
 #include "../core/object.h"
 #include "../core/types.h"
+#include "../animation/animation.h"
+
+#include <memory>
 
 struct TTF_Font;
 
@@ -38,6 +41,7 @@ public:
     void on_update(float dt) override {}
     void on_event() override {}
     void on_render() override {}
+    void set_anim(Animation *a) { m_anim = a; }
 protected:
     int m_hp = 5;
     int m_max_hp = 5;
@@ -47,6 +51,8 @@ protected:
     glm::vec4 m_color = BLUE;
     int m_frame = 0;
     float m_timer = 0.0f;
+    std::unique_ptr<Animation> m_anim_idle_l, m_anim_idle_r, m_anim_walk_l, m_anim_walk_r;
+    Animation *m_anim = nullptr;
 };
 
 void draw_actor(float px, float py, float w, float h, float tex_w, float tex_h, SDL_Texture *tex);

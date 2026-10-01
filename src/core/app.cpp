@@ -172,7 +172,7 @@ bool App::init()
 
     // load resource
     ResourceManager::set_renderer(RenderManager::renderer());
-        const char *base = SDL_GetBasePath();
+    const char *base = SDL_GetBasePath();
     std::string pak_path = std::string(base) + "assets.pak";
     SDL_free(const_cast<char *>(base));
     if (!ResourceManager::load_resource(pak_path)) return false;

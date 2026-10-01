@@ -13,6 +13,7 @@ namespace shooter
 class AIPlayer : public Character
 {
 public:
+    AIPlayer();
     void init(const char *name, glm::vec2 spawn, glm::vec4 color, float difficulty);
     void reset();
     void update(float dt, const Player (&players)[2], std::vector<Bullet> &bullets);

@@ -17,6 +17,16 @@ Atlas::Atlas(std::initializer_list<std::string_view> list)
     }
 }
 
+Atlas::Atlas(const std::vector<std::string> &names)
+{
+    for (const auto &name : names)
+    {
+        auto *tex = ResourceManager::get_texture(name);
+        if (!tex) continue;
+        m_textures.push_back(tex);
+    }
+}
+
 Atlas::Atlas(Atlas &&atlas) noexcept
 {
     m_textures = std::move(atlas.m_textures);
@@ -75,6 +85,7 @@ void Animation::set_size(glm::vec2 size)
 
 void Animation::to_next_frame()
 {
+    if (m_atlas.size() == 0) return;
     m_current = m_atlas.get_texture(m_idx++ % m_atlas.size());
 }
 
